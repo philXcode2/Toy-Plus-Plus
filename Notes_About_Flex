@@ -1,0 +1,2 @@
+no space before token description
+put space before comment in lexer words to push it in c++ code instead of flex code

@@ -1,0 +1,44 @@
+digraph program {
+    ast_hpp [shape=plain label=<
+        <table>
+            <tr><td><b>ast.hpp</b></td></tr>
+            <tr><td>ast_node</td></tr>
+            <tr><td>print_ast()</td></tr>
+        </table>
+    >]
+    ast_cpp [label="ast.cpp"]
+    ast_cpp -> ast_hpp [label="descriptions"]
+
+    grammar [shape=plain label=<
+        <table>
+            <tr><td><b>grammar.y</b></td></tr>
+            <tr><td>yyerror()</td></tr>
+            <tr><td>yylex()</td></tr>
+            <tr><td>yyparse()</td></tr>
+        </table>
+    >]
+    ast_hpp -> grammar [label="ast_node"]
+
+    lexer [shape=plain label=<
+        <table>
+            <tr><td><b>lexer.l</b></td></tr>
+            <tr><td>yywrap</td></tr>
+        </table>
+    >]
+    ast_hpp -> lexer [label="ast_node"]
+    grammar -> lexer [label="yyerror()"]
+    grammar -> lexer [label="yylex()"]
+    grammar -> lexer [label="yyparse()"]
+
+    main [shape=plain label=<
+        <table>
+            <tr><td><b>external_main.cpp</b></td></tr>
+            <tr><td>main()</td></tr>
+            <tr><td>ast_file</td></tr>
+        </table>
+    >]
+    lexer -> main [label=""]
+    grammar -> main [label="root"]
+    ast_hpp -> main [label="printAst()"]
+    ast_hpp -> main [label="ast_node"]
+}
