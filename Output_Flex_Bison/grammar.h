@@ -13,9 +13,9 @@
 
  #line 8 "/usr/share/bison++/bison.h"
 
-#line 28 "./Source/grammar.y"
+#line 32 "./Source/grammar.y"
 typedef union {
-    ast_node* node;
+    Node* node;
 } yy_toy_plus_plus_stype;
 #define YY_toy_plus_plus_STYPE yy_toy_plus_plus_stype
 #ifndef YY_USE_CLASS
@@ -191,10 +191,11 @@ typedef
 
  #line 169 "/usr/share/bison++/bison.h"
 #define	INT	258
-#define	FUNCTION	259
-#define	VOID	260
-#define	VALUE	261
-#define	RETURN	262
+#define	FLOAT	259
+#define	FUNCTION	260
+#define	VOID	261
+#define	VALUE	262
+#define	RETURN	263
 
 
 #line 169 "/usr/share/bison++/bison.h"
@@ -244,6 +245,7 @@ public:
   
  #line 212 "/usr/share/bison++/bison.h"
 static const int INT;
+static const int FLOAT;
 static const int FUNCTION;
 static const int VOID;
 static const int VALUE;
@@ -257,10 +259,11 @@ static const int RETURN;
   
  #line 215 "/usr/share/bison++/bison.h"
 	,INT=258
-	,FUNCTION=259
-	,VOID=260
-	,VALUE=261
-	,RETURN=262
+	,FLOAT=259
+	,FUNCTION=260
+	,VOID=261
+	,VALUE=262
+	,RETURN=263
 
 
 #line 215 "/usr/share/bison++/bison.h"

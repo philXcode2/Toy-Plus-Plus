@@ -106,11 +106,15 @@ Maintained by Magnus Ekdahl <magnus@debian.org>
 
     // set up stage before writing the language grammar
     #include<bits/stdc++.h>
-    #include "../Includes/ast.hpp"
+    #include "../Includes/combined_includes.hpp"
     using namespace std;
 
     // root node to start printing the ast
-    ast_node* root = new ast_node("start");
+    // any value assigning to any field of Node here causes does not name a type error
+    Node* root = new Node();
+
+    // global symbol table
+    symbol_table* table = new symbol_table();
 
     // define yyerror here which is filled by bison later 
     int yyerror(string s);
@@ -121,9 +125,9 @@ Maintained by Magnus Ekdahl <magnus@debian.org>
     int yylex();
     int yyparse();
 
-#line 28 "./Source/grammar.y"
+#line 32 "./Source/grammar.y"
 typedef union {
-    ast_node* node;
+    Node* node;
 } yy_toy_plus_plus_stype;
 #define YY_toy_plus_plus_STYPE yy_toy_plus_plus_stype
 #ifndef YY_USE_CLASS
@@ -326,10 +330,11 @@ typedef
 
  #line 263 "/usr/share/bison++/bison.cc"
 #define	INT	258
-#define	FUNCTION	259
-#define	VOID	260
-#define	VALUE	261
-#define	RETURN	262
+#define	FLOAT	259
+#define	FUNCTION	260
+#define	VOID	261
+#define	VALUE	262
+#define	RETURN	263
 
 
 #line 263 "/usr/share/bison++/bison.cc"
@@ -380,6 +385,7 @@ public:
 
  #line 307 "/usr/share/bison++/bison.cc"
 static const int INT;
+static const int FLOAT;
 static const int FUNCTION;
 static const int VOID;
 static const int VALUE;
@@ -393,10 +399,11 @@ enum YY_toy_plus_plus_ENUM_TOKEN { YY_toy_plus_plus_NULL_TOKEN=0
 
  #line 310 "/usr/share/bison++/bison.cc"
 	,INT=258
-	,FUNCTION=259
-	,VOID=260
-	,VALUE=261
-	,RETURN=262
+	,FLOAT=259
+	,FUNCTION=260
+	,VOID=261
+	,VALUE=262
+	,RETURN=263
 
 
 #line 310 "/usr/share/bison++/bison.cc"
@@ -434,10 +441,11 @@ public:
 
  #line 341 "/usr/share/bison++/bison.cc"
 const int YY_toy_plus_plus_CLASS::INT=258;
-const int YY_toy_plus_plus_CLASS::FUNCTION=259;
-const int YY_toy_plus_plus_CLASS::VOID=260;
-const int YY_toy_plus_plus_CLASS::VALUE=261;
-const int YY_toy_plus_plus_CLASS::RETURN=262;
+const int YY_toy_plus_plus_CLASS::FLOAT=259;
+const int YY_toy_plus_plus_CLASS::FUNCTION=260;
+const int YY_toy_plus_plus_CLASS::VOID=261;
+const int YY_toy_plus_plus_CLASS::VALUE=262;
+const int YY_toy_plus_plus_CLASS::RETURN=263;
 
 
 #line 341 "/usr/share/bison++/bison.cc"
@@ -456,26 +464,26 @@ YY_toy_plus_plus_CONSTRUCTOR_CODE;
  #line 352 "/usr/share/bison++/bison.cc"
 
 
-#define	YYFINAL		48
+#define	YYFINAL		49
 #define	YYFLAG		-32768
-#define	YYNTBASE	19
+#define	YYNTBASE	20
 
-#define YYTRANSLATE(x) ((unsigned)(x) <= 262 ? yytranslate[x] : 31)
+#define YYTRANSLATE(x) ((unsigned)(x) <= 263 ? yytranslate[x] : 32)
 
 static const char yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,     2,     2,     2,     2,     2,     2,    13,
-    14,    10,     8,    18,     9,     2,    11,     2,     2,     2,
-     2,     2,     2,     2,     2,     2,     2,     2,    17,     2,
-    12,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+     2,     2,     2,     2,     2,     2,     2,     2,     2,    14,
+    15,    11,     9,    19,    10,     2,    12,     2,     2,     2,
+     2,     2,     2,     2,     2,     2,     2,     2,    18,     2,
+    13,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,    15,     2,    16,     2,     2,     2,     2,     2,
+     2,     2,    16,     2,    17,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -489,101 +497,104 @@ static const char yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     1,     2,     3,     4,     5,
-     6,     7
+     6,     7,     8
 };
 
 #if YY_toy_plus_plus_DEBUG != 0
 static const short yyprhs[] = {     0,
-     0,     2,     5,     7,    10,    15,    17,    19,    22,    26,
-    29,    32,    35,    38,    41,    44,    47,    50,    53,    57,
-    61,    63,    67,    71,    73,    77
+     0,     2,     5,     7,    10,    15,    17,    19,    21,    24,
+    28,    31,    34,    37,    40,    43,    46,    49,    52,    55,
+    59,    63,    65,    69,    73,    75,    79
 };
 
-static const short yyrhs[] = {    20,
-     0,    20,    21,     0,    21,     0,    22,    26,     0,     4,
-    23,    24,     6,     0,     3,     0,     5,     0,    24,    14,
-     0,    24,    18,    25,     0,    13,    25,     0,    13,    14,
-     0,    23,     6,     0,    26,    16,     0,    26,    27,     0,
-    15,    27,     0,    30,    17,     0,    29,    17,     0,     7,
-    17,     0,    28,    10,     6,     0,    28,    11,     6,     0,
-     6,     0,    29,     8,    28,     0,    29,     9,    28,     0,
-    28,     0,    25,    12,    29,     0,     6,    12,    29,     0
+static const short yyrhs[] = {    21,
+     0,    21,    22,     0,    22,     0,    23,    27,     0,     5,
+    24,    25,     7,     0,     3,     0,     4,     0,     6,     0,
+    25,    15,     0,    25,    19,    26,     0,    14,    26,     0,
+    14,    15,     0,    24,     7,     0,    27,    17,     0,    27,
+    28,     0,    16,    28,     0,    31,    18,     0,    30,    18,
+     0,     8,    18,     0,    29,    11,     7,     0,    29,    12,
+     7,     0,     7,     0,    30,     9,    29,     0,    30,    10,
+    29,     0,    29,     0,    26,    13,    30,     0,     7,    13,
+    30,     0
 };
 
 #endif
 
 #if (YY_toy_plus_plus_DEBUG != 0) || defined(YY_toy_plus_plus_ERROR_VERBOSE) 
 static const short yyrline[] = { 0,
-    59,    66,    73,    80,    87,    94,   100,   107,   114,   121,
-   127,   134,   141,   148,   155,   162,   168,   174,   181,   188,
-   195,   202,   209,   216,   223,   229
+    63,    73,    82,    91,   100,   124,   131,   138,   146,   154,
+   162,   170,   179,   199,   209,   217,   226,   234,   242,   251,
+   271,   294,   312,   326,   338,   349,   364
 };
 
-static const char * const yytname[] = {   "$","error","$illegal.","INT","FUNCTION",
-"VOID","VALUE","RETURN","'+'","'-'","'*'","'/'","'='","'('","')'","'{'","'}'",
-"';'","','","end_point_of_collapse","list_of_functions","function","function_declaration",
-"data_type","arguement_list_with_brackets","variable_declaration","compound_statement_with_brackets",
-"statement_with_semicolon","multiplicative_statement","additive_statement","assignment_statement",
-""
+static const char * const yytname[] = {   "$","error","$illegal.","INT","FLOAT",
+"FUNCTION","VOID","VALUE","RETURN","'+'","'-'","'*'","'/'","'='","'('","')'",
+"'{'","'}'","';'","','","end_point_of_collapse","list_of_functions","function",
+"function_declaration","data_type","arguement_list_with_brackets","variable_declaration",
+"compound_statement_with_brackets","statement_with_semicolon","multiplicative_statement",
+"additive_statement","assignment_statement",""
 };
 #endif
 
 static const short yyr1[] = {     0,
-    19,    20,    20,    21,    22,    23,    23,    24,    24,    24,
-    24,    25,    26,    26,    26,    27,    27,    27,    28,    28,
-    28,    29,    29,    29,    30,    30
+    20,    21,    21,    22,    23,    24,    24,    24,    25,    25,
+    25,    25,    26,    27,    27,    27,    28,    28,    28,    29,
+    29,    29,    30,    30,    30,    31,    31
 };
 
 static const short yyr2[] = {     0,
-     1,     2,     1,     2,     4,     1,     1,     2,     3,     2,
-     2,     2,     2,     2,     2,     2,     2,     2,     3,     3,
-     1,     3,     3,     1,     3,     3
+     1,     2,     1,     2,     4,     1,     1,     1,     2,     3,
+     2,     2,     2,     2,     2,     2,     2,     2,     2,     3,
+     3,     1,     3,     3,     1,     3,     3
 };
 
 static const short yydefact[] = {     0,
-     0,     1,     3,     0,     6,     7,     0,     2,     0,     4,
-     0,     0,    21,     0,     0,     0,    15,    24,     0,     0,
-    13,    14,    11,    10,     5,     8,     0,     0,    18,    12,
-     0,     0,     0,     0,     0,    17,    16,     9,    21,    26,
-    25,    19,    20,    22,    23,     0,     0,     0
+     0,     1,     3,     0,     6,     7,     8,     0,     2,     0,
+     4,     0,     0,    22,     0,     0,     0,    16,    25,     0,
+     0,    14,    15,    12,    11,     5,     9,     0,     0,    19,
+    13,     0,     0,     0,     0,     0,    18,    17,    10,    22,
+    27,    26,    20,    21,    23,    24,     0,     0,     0
 };
 
-static const short yydefgoto[] = {    46,
-     2,     3,     4,    15,    12,    16,    10,    17,    18,    19,
-    20
+static const short yydefgoto[] = {    47,
+     2,     3,     4,    16,    13,    17,    11,    18,    19,    20,
+    21
 };
 
-static const short yypact[] = {    14,
-     6,    14,-32768,   -13,-32768,-32768,    18,-32768,    17,    -2,
-     3,     1,    20,    -7,    29,    24,-32768,    16,     4,    22,
--32768,-32768,-32768,-32768,-32768,-32768,     6,    31,-32768,-32768,
-    31,    32,    34,    31,    31,-32768,-32768,-32768,-32768,    21,
-    21,-32768,-32768,    16,    16,    41,    42,-32768
+static const short yypact[] = {    15,
+     8,    15,-32768,   -13,-32768,-32768,-32768,    -1,-32768,    21,
+    -2,     4,     2,     5,    14,    19,    28,-32768,    23,    13,
+    22,-32768,-32768,-32768,-32768,-32768,-32768,     8,    35,-32768,
+-32768,    35,    36,    37,    35,    35,-32768,-32768,-32768,-32768,
+    27,    27,-32768,-32768,    23,    23,    45,    46,-32768
 };
 
 static const short yypgoto[] = {-32768,
--32768,    43,-32768,    45,-32768,   -11,-32768,    33,    -1,    -3,
+-32768,    47,-32768,    49,-32768,   -12,-32768,    40,     3,     1,
 -32768
 };
 
 
-#define	YYLAST		46
+#define	YYLAST		51
 
 
-static const short yytable[] = {    24,
-     5,     9,     6,    13,    14,     5,    25,     6,     5,    29,
-     6,    34,    35,    21,    26,    38,    23,     1,    27,     5,
-    36,     6,    13,    14,    40,    32,    33,    41,    34,    35,
-    11,    28,    44,    45,    30,    31,    39,    42,    37,    43,
-    47,    48,    22,     0,     8,     7
+static const short yytable[] = {    25,
+     5,     6,    10,     7,    14,    15,     5,     6,    26,     7,
+     5,     6,    12,     7,    22,    39,    27,    29,    24,     1,
+    28,    35,    36,     5,     6,    31,     7,    14,    15,    41,
+    37,    30,    42,    33,    34,    35,    36,    45,    46,    38,
+    32,    40,    43,    44,    48,    49,     0,     0,     9,     8,
+    23
 };
 
-static const short yycheck[] = {    11,
-     3,    15,     5,     6,     7,     3,     6,     5,     3,    17,
-     5,     8,     9,    16,    14,    27,    14,     4,    18,     3,
-    17,     5,     6,     7,    28,    10,    11,    31,     8,     9,
-    13,    12,    34,    35,     6,    12,     6,     6,    17,     6,
-     0,     0,    10,    -1,     2,     1
+static const short yycheck[] = {    12,
+     3,     4,    16,     6,     7,     8,     3,     4,     7,     6,
+     3,     4,    14,     6,    17,    28,    15,    13,    15,     5,
+    19,     9,    10,     3,     4,     7,     6,     7,     8,    29,
+    18,    18,    32,    11,    12,     9,    10,    35,    36,    18,
+    13,     7,     7,     7,     0,     0,    -1,    -1,     2,     1,
+    11
 };
 
 #line 352 "/usr/share/bison++/bison.cc"
@@ -1080,194 +1091,338 @@ YYLABEL(yyreduce)
   switch (yyn) {
 
 case 1:
-#line 60 "./Source/grammar.y"
+#line 64 "./Source/grammar.y"
 {
-        root->addChildren(1, yyvsp[0].node);
-        cout << "collapse to end_point_of_collapse\n";
+        // doing this in upper c++ code creates does not name a type error
+        root->ast = new ast_node("start");
+        root->ast->addChildren(1, yyvsp[0].node->ast);
+        
+        //pcout << "collapse to end_point_of_collapse\n";
     ;
     break;}
 case 2:
-#line 67 "./Source/grammar.y"
+#line 74 "./Source/grammar.y"
 {
-        yyval.node = yyvsp[-1].node;
-        yyval.node->addChildren(1, yyvsp[0].node);
-        cout << "collect in list_of_function\n";
+        yyval.node = new Node();
+        yyval.node->ast = yyvsp[-1].node->ast;
+        yyval.node->ast->addChildren(1, yyvsp[0].node->ast);
+        
+        //pcout << "collect in list_of_function\n";
     ;
     break;}
 case 3:
-#line 74 "./Source/grammar.y"
+#line 83 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("list_of_functions", 1, yyvsp[0].node);
-        cout << "collapse to list_of_functions\n";
+        yyval.node = new Node();
+        yyval.node->ast = new ast_node("list_of_functions", 1, yyvsp[0].node->ast);
+        
+        //pcout << "collapse to list_of_functions\n";
     ;
     break;}
 case 4:
-#line 81 "./Source/grammar.y"
+#line 92 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("function", 2, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collapse to function\n";
+        yyval.node = new Node();
+        yyval.node->ast = new ast_node("function", 2, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+        
+        //pcout << "collapse to function\n";
     ;
     break;}
 case 5:
-#line 88 "./Source/grammar.y"
+#line 101 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("function_declaration", 3, yyvsp[-3].node, yyvsp[-2].node, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collapse to function_declaration\n";
+        yyval.node = new Node();
+
+        // building ast
+        yyval.node->ast = new ast_node("function_declaration", 3, yyvsp[-3].node->ast, yyvsp[-2].node->ast, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+        
+        // type checking
+        if(table->find(yyvsp[0].node->ast->name)) {
+            cout << "\033[31mERROR\033[0m: this variable already exist with another type." << endl;
+        }
+        else {
+            table->table[yyvsp[0].node->ast->name] = yyvsp[-3].node->type;
+        }
+        // switch the table here because compound statement opens after a statement collapses
+        symbol_table* child_table = new symbol_table();
+        child_table->parent_table = table;
+        table->children_tables.push_back(child_table);
+        table = child_table;
+        
+        //pcout << "collapse to function_declaration\n";
     ;
     break;}
 case 6:
-#line 95 "./Source/grammar.y"
+#line 125 "./Source/grammar.y"
 {
         yyval.node = yyvsp[0].node;
-        cout << "collapse to data_type\n";
+        
+        //pcout << "collapse to data_type\n";
     ;
     break;}
 case 7:
-#line 101 "./Source/grammar.y"
+#line 132 "./Source/grammar.y"
 {
         yyval.node = yyvsp[0].node;
-        cout << "collapse to data_type\n";
+        
+        //pcout << "collapse to data_type\n";
     ;
     break;}
 case 8:
-#line 108 "./Source/grammar.y"
+#line 139 "./Source/grammar.y"
 {
-        yyval.node = yyvsp[-1].node;
-        yyval.node->addChildren(1, yyvsp[0].node);
-        cout << "end collecting arguement_list_with_brackets\n";
+        yyval.node = yyvsp[0].node;
+        
+        //pcout << "collapse to data_type\n";
     ;
     break;}
 case 9:
-#line 115 "./Source/grammar.y"
+#line 147 "./Source/grammar.y"
 {
-        yyval.node = yyvsp[-2].node;
-        yyval.node->addChildren(2, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collect in arguement_list_with_brackets\n";
+        yyval.node = yyvsp[-1].node;
+        yyval.node->ast->addChildren(1, yyvsp[0].node->ast);
+
+        //pcout << "end collecting arguement_list_with_brackets\n";
     ;
     break;}
 case 10:
-#line 122 "./Source/grammar.y"
+#line 155 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("arguement_list_with_brackets", 2, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collapse to arguement_list_with_brackets\n";
+        yyval.node = yyvsp[-2].node;
+        yyval.node->ast->addChildren(2, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+        
+        //pcout << "collect in arguement_list_with_brackets\n";
     ;
     break;}
 case 11:
-#line 128 "./Source/grammar.y"
+#line 163 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("arguement_list_with_brackets", 2, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collapse empty arguement_list_with_brackets\n"
+        yyval.node = new Node();
+        yyval.node->ast = new ast_node("arguement_list_with_brackets", 2, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+        
+        //pcout << "collapse to arguement_list_with_brackets\n";
     ;
     break;}
 case 12:
-#line 135 "./Source/grammar.y"
+#line 171 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("variable_declaration", 2, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collapse to variable_declaration\n";
+        yyval.node = new Node();
+        yyval.node->ast = new ast_node("arguement_list_with_brackets", 2, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+        
+        //pcout << "collapse empty arguement_list_with_brackets\n"
     ;
     break;}
 case 13:
-#line 142 "./Source/grammar.y"
+#line 180 "./Source/grammar.y"
 {
-        yyval.node = yyvsp[-1].node;
-        yyval.node->addChildren(1, yyvsp[0].node);
-        cout << "end collecting compound_statements_with_brackets\n";
+        yyval.node = new Node();
+        yyval.node->ast = new ast_node("variable_declaration", 2, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+
+        yyval.node->type = yyvsp[-1].node->type;
+        if(yyvsp[0].node->type != DATA_TYPE::_VARIABLE) {
+            cout << "\033[31mERROR\033[0m: use valid variable name." << endl;
+        }
+        else if(table->find(yyvsp[0].node->ast->name)) {
+            cout << "\033[31mERROR\033[0m: this variable already exist with another type." << endl;
+        }
+        else {
+            table->table[yyvsp[0].node->ast->name] = yyvsp[-1].node->type;
+        }
+        
+        //pcout << "collapse to variable_declaration\n";
     ;
     break;}
 case 14:
-#line 149 "./Source/grammar.y"
+#line 200 "./Source/grammar.y"
 {
         yyval.node = yyvsp[-1].node;
-        yyval.node->addChildren(1, yyvsp[0].node);
-        cout << "collect in compound_statement_with_brackets\n";
+        yyval.node->ast->addChildren(1, yyvsp[0].node->ast);
+
+        table = table->parent_table;
+        
+        //pcout << "end collecting compound_statements_with_brackets\n";
     ;
     break;}
 case 15:
-#line 156 "./Source/grammar.y"
+#line 210 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("compound_statement_with_brackets", 2, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collapse to compound_statement_with_brackets\n";
+        yyval.node = yyvsp[-1].node;
+        yyval.node->ast->addChildren(1, yyvsp[0].node->ast);
+        
+        //pcout << "collect in compound_statement_with_brackets\n";
     ;
     break;}
 case 16:
-#line 163 "./Source/grammar.y"
+#line 218 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("statement_with_semicolon", 2, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collapse to statement_with_semicolon\n";
+        yyval.node = new Node();
+        yyval.node->ast = new ast_node("compound_statement_with_brackets", 2, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+        
+        //pcout << "collapse to compound_statement_with_brackets\n";
     ;
     break;}
 case 17:
-#line 169 "./Source/grammar.y"
+#line 227 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("statement_with_semicolon", 2, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collapse to statement_with_semicolon\n";
+        yyval.node = new Node();
+        yyval.node->ast = new ast_node("statement_with_semicolon", 2, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+        
+        //pcout << "collapse to statement_with_semicolon\n";
     ;
     break;}
 case 18:
-#line 175 "./Source/grammar.y"
+#line 235 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("statement_with_semicolon", 2, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collapse return statement\n";
+        yyval.node = new Node();
+        yyval.node->ast = new ast_node("statement_with_semicolon", 2, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+        
+        //pcout << "collapse to statement_with_semicolon\n";
     ;
     break;}
 case 19:
-#line 182 "./Source/grammar.y"
+#line 243 "./Source/grammar.y"
 {
-        yyval.node = yyvsp[-2].node;
-        yyval.node->addChildren(2, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collect multiplication\n";
+        yyval.node = new Node();
+        yyval.node->ast = new ast_node("statement_with_semicolon", 2, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+        
+        //pcout << "collapse return statement\n";
     ;
     break;}
 case 20:
-#line 189 "./Source/grammar.y"
+#line 252 "./Source/grammar.y"
 {
         yyval.node = yyvsp[-2].node;
-        yyval.node->addChildren(2, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collect division\n";
+        yyval.node->ast->addChildren(2, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+
+        if(yyvsp[0].node->type == DATA_TYPE::_VARIABLE) {
+            if(table->find(yyvsp[-2].node->ast->name)) {
+                yyval.node->type = table->table[yyvsp[0].node->ast->name];
+            }
+            else {
+                cout << "\033[31mERROR\033[0m: variable \"" << yyvsp[0].node->ast->name << "\" does not exist." << endl;
+            }
+        }
+        if(yyvsp[-2].node->type != yyvsp[0].node->type) {
+            cout << "\033[31mERROR\033[0m: type mismatch in multiplication." << endl;
+        }
+        
+        //pcout << "collect multiplication\n";
     ;
     break;}
 case 21:
-#line 196 "./Source/grammar.y"
+#line 272 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("multiplicative_statement", 1, yyvsp[0].node);
-        cout << "collapse to multiplicative_statement\n";
+        yyval.node = yyvsp[-2].node;
+        yyval.node->ast->addChildren(2, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+
+        if(yyvsp[0].node->type == DATA_TYPE::_VARIABLE) {
+            if(table->find(yyvsp[0].node->ast->name)) {
+                yyval.node->type = table->table[yyvsp[0].node->ast->name];
+            }
+            else {
+                cout << "\033[31mERROR\033[0m: variable \"" << yyvsp[-2].node->ast->name << "\" does not exist." << endl;
+            }
+        }
+        if(yyvsp[-2].node->type != yyvsp[0].node->type) {
+            cout << "\033[31mERROR\033[0m: type mismatch in division." << endl;
+        }
+        else if(yyvsp[0].node->ast->name == "0") {
+            cout << "\033[31mERROR\033[0m: divide by zero error." << endl;
+        }
+
+        //pcout << "collect division\n";
     ;
     break;}
 case 22:
-#line 203 "./Source/grammar.y"
+#line 295 "./Source/grammar.y"
 {
-        yyval.node = yyvsp[-2].node;
-        yyval.node->addChildren(2, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collect addition\n";
+        yyval.node = new Node();
+        yyval.node->ast = new ast_node("multiplicative_statement", 1, yyvsp[0].node->ast);
+
+        if(yyvsp[0].node->type == DATA_TYPE::_VARIABLE) {
+            if(table->find(yyvsp[0].node->ast->name)) {
+                yyval.node->type = table->table[yyvsp[0].node->ast->name];
+            }
+            else {
+                cout << "\033[31mERROR\033[0m: variable \"" << yyvsp[0].node->ast->name << "\" does not exist." << endl;
+            }
+        }
+
+        //pcout << "collapse to multiplicative_statement\n";
     ;
     break;}
 case 23:
-#line 210 "./Source/grammar.y"
+#line 313 "./Source/grammar.y"
 {
         yyval.node = yyvsp[-2].node;
-        yyval.node->addChildren(2, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collect subtraction\n";
+        yyval.node->ast->addChildren(2, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+
+        // cout << $1->ast->name << "+" << $3->ast->name << endl;
+        // cout << typeToString($1->type) << "+" << typeToString($3->type) << endl;
+        if(yyvsp[-2].node->type != yyvsp[0].node->type) {
+            cout << "\033[31mERROR\033[0m: type mismatch in addition." << endl;
+        }
+
+        //pcout << "collect addition\n";
     ;
     break;}
 case 24:
-#line 217 "./Source/grammar.y"
+#line 327 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("additive_statement", 1, yyvsp[0].node);
-        cout << "collapse to additive_statement\n";
+        yyval.node = yyvsp[-2].node;
+        yyval.node->ast->addChildren(2, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+
+        if(yyvsp[-2].node->type != yyvsp[0].node->type) {
+            cout << "\033[31mERROR\033[0m: type mismatch in subtraction." << endl;
+        }
+
+        //pcout << "collect subtraction\n";
     ;
     break;}
 case 25:
-#line 224 "./Source/grammar.y"
+#line 339 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("assignment_statement", 3, yyvsp[-2].node, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collapse to assignemnt_statement\n";
+        yyval.node = new Node();
+        yyval.node->ast = new ast_node("additive_statement", 1, yyvsp[0].node->ast);
+
+        yyval.node->type = yyvsp[0].node->type;
+
+        //pcout << "collapse to additive_statement\n";
     ;
     break;}
 case 26:
-#line 230 "./Source/grammar.y"
+#line 350 "./Source/grammar.y"
 {
-        yyval.node = new ast_node("assignment_statement", 3, yyvsp[-2].node, yyvsp[-1].node, yyvsp[0].node);
-        cout << "collpase to assignement_statement\n";
+        yyval.node = new Node();
+        yyval.node->ast = new ast_node("assignment_statement", 3, yyvsp[-2].node->ast, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+        
+        // cout << $1->ast->name << "=" << $3->ast->name << endl;
+        // cout << typeToString($1->type) << "=" << typeToString($3->type) << endl;
+        if(yyvsp[-2].node->type != yyvsp[0].node->type) {
+            cout << "\033[31mERROR\033[0m: type mismatch in assignment." << endl;
+        }
+        yyval.node->type = yyvsp[0].node->type;
+        
+        //pcout << "collapse to assignemnt_statement\n";
+    ;
+    break;}
+case 27:
+#line 365 "./Source/grammar.y"
+{
+        yyval.node = new Node();
+        yyval.node->ast = new ast_node("assignment_statement", 3, yyvsp[-2].node->ast, yyvsp[-1].node->ast, yyvsp[0].node->ast);
+        
+        // cout << $1->ast->name << "=" << $3->ast->name << endl;
+        // cout << typeToString($1->type) << "=" << typeToString($3->type) << endl;
+        if(!table->find(yyvsp[-2].node->ast->name)) {
+            cout << "\033[31mERROR\033[0m: this variable\"" << yyvsp[-2].node->ast->name << "\"does not exist." << endl;
+        }
+        else if(yyvsp[-2].node->type != yyvsp[0].node->type) {
+            cout << "\033[31mERROR\033[0m: type mismatch in assignment." << endl;
+        }
+        yyval.node->type = yyvsp[0].node->type;
+
+        //pcout << "collpase to assignement_statement\n";
     ;
     break;}
 }
@@ -1474,7 +1629,7 @@ YYLABEL(yyerrhandle)
 /* END */
 
  #line 1038 "/usr/share/bison++/bison.cc"
-#line 235 "./Source/grammar.y"
+#line 382 "./Source/grammar.y"
 
 /* ending grammar of the language */
 

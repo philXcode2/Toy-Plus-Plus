@@ -5,11 +5,15 @@
 
     // set up stage before writing the language grammar
     #include<bits/stdc++.h>
-    #include "../Includes/ast.hpp"
+    #include "../Includes/combined_includes.hpp"
     using namespace std;
 
     // root node to start printing the ast
-    ast_node* root = new ast_node("start");
+    // any value assigning to any field of Node here causes does not name a type error
+    Node* root = new Node();
+
+    // global symbol table
+    symbol_table* table = new symbol_table();
 
     // define yyerror here which is filled by bison later 
     int yyerror(string s);
@@ -26,12 +30,12 @@
 
 /* set the node types that the parser will use */
 %union {
-    ast_node* node;
+    Node* node;
 }
 
 /* declare the tokens and the which member of the union that they take */
 // data types of the language
-%token <node> INT FUNCTION VOID
+%token <node> INT FLOAT FUNCTION VOID
 
 // variables and numbers in the language
 %token <node> VALUE
@@ -58,178 +62,321 @@
 /* end point of parsing*/
 end_point_of_collapse: list_of_functions
     {
-        root->addChildren(1, $1);
-        cout << "collapse to end_point_of_collapse\n";
+        // doing this in upper c++ code creates does not name a type error
+        root->ast = new ast_node("start");
+        root->ast->addChildren(1, $1->ast);
+        
+        //pcout << "collapse to end_point_of_collapse\n";
     }
     ;
 
 list_of_functions: list_of_functions function
     {
-        $$ = $1;
-        $$->addChildren(1, $2);
-        cout << "collect in list_of_function\n";
+        $$ = new Node();
+        $$->ast = $1->ast;
+        $$->ast->addChildren(1, $2->ast);
+        
+        //pcout << "collect in list_of_function\n";
     }
 
     | function
     {
-        $$ = new ast_node("list_of_functions", 1, $1);
-        cout << "collapse to list_of_functions\n";
+        $$ = new Node();
+        $$->ast = new ast_node("list_of_functions", 1, $1->ast);
+        
+        //pcout << "collapse to list_of_functions\n";
     }
     ;
 
 function: function_declaration compound_statement_with_brackets
     {
-        $$ = new ast_node("function", 2, $1, $2);
-        cout << "collapse to function\n";
+        $$ = new Node();
+        $$->ast = new ast_node("function", 2, $1->ast, $2->ast);
+        
+        //pcout << "collapse to function\n";
     }
     ;
 
 function_declaration: FUNCTION data_type arguement_list_with_brackets VALUE
     {
-        $$ = new ast_node("function_declaration", 3, $1, $2, $3, $4);
-        cout << "collapse to function_declaration\n";
+        $$ = new Node();
+
+        // building ast
+        $$->ast = new ast_node("function_declaration", 3, $1->ast, $2->ast, $3->ast, $4->ast);
+        
+        // type checking
+        if(table->find($4->ast->name)) {
+            cout << "\033[31mERROR\033[0m: this variable already exist with another type." << endl;
+        }
+        else {
+            table->table[$4->ast->name] = $1->type;
+        }
+        // switch the table here because compound statement opens after a statement collapses
+        symbol_table* child_table = new symbol_table();
+        child_table->parent_table = table;
+        table->children_tables.push_back(child_table);
+        table = child_table;
+        
+        //pcout << "collapse to function_declaration\n";
     }
     ;
 
 data_type: INT
     {
         $$ = $1;
-        cout << "collapse to data_type\n";
+        
+        //pcout << "collapse to data_type\n";
+    }
+
+    | FLOAT
+    {
+        $$ = $1;
+        
+        //pcout << "collapse to data_type\n";
     }
 
     | VOID
     {
         $$ = $1;
-        cout << "collapse to data_type\n";
+        
+        //pcout << "collapse to data_type\n";
     }
     ;
 
 arguement_list_with_brackets: arguement_list_with_brackets ')'
     {
         $$ = $1;
-        $$->addChildren(1, $2);
-        cout << "end collecting arguement_list_with_brackets\n";
+        $$->ast->addChildren(1, $2->ast);
+
+        //pcout << "end collecting arguement_list_with_brackets\n";
     }
 
     | arguement_list_with_brackets ',' variable_declaration
     {
         $$ = $1;
-        $$->addChildren(2, $2, $3);
-        cout << "collect in arguement_list_with_brackets\n";
+        $$->ast->addChildren(2, $2->ast, $3->ast);
+        
+        //pcout << "collect in arguement_list_with_brackets\n";
     }
 
     | '(' variable_declaration
     {
-        $$ = new ast_node("arguement_list_with_brackets", 2, $1, $2);
-        cout << "collapse to arguement_list_with_brackets\n";
+        $$ = new Node();
+        $$->ast = new ast_node("arguement_list_with_brackets", 2, $1->ast, $2->ast);
+        
+        //pcout << "collapse to arguement_list_with_brackets\n";
     }
 
     | '(' ')'
     {
-        $$ = new ast_node("arguement_list_with_brackets", 2, $1, $2);
-        cout << "collapse empty arguement_list_with_brackets\n"
+        $$ = new Node();
+        $$->ast = new ast_node("arguement_list_with_brackets", 2, $1->ast, $2->ast);
+        
+        //pcout << "collapse empty arguement_list_with_brackets\n"
     }
     ;
 
 variable_declaration: data_type VALUE
     {
-        $$ = new ast_node("variable_declaration", 2, $1, $2);
-        cout << "collapse to variable_declaration\n";
+        $$ = new Node();
+        $$->ast = new ast_node("variable_declaration", 2, $1->ast, $2->ast);
+
+        $$->type = $1->type;
+        if($2->type != DATA_TYPE::_VARIABLE) {
+            cout << "\033[31mERROR\033[0m: use valid variable name." << endl;
+        }
+        else if(table->find($2->ast->name)) {
+            cout << "\033[31mERROR\033[0m: this variable already exist with another type." << endl;
+        }
+        else {
+            table->table[$2->ast->name] = $1->type;
+        }
+        
+        //pcout << "collapse to variable_declaration\n";
     }
     ;
 
 compound_statement_with_brackets: compound_statement_with_brackets '}'
     {
         $$ = $1;
-        $$->addChildren(1, $2);
-        cout << "end collecting compound_statements_with_brackets\n";
+        $$->ast->addChildren(1, $2->ast);
+
+        table = table->parent_table;
+        
+        //pcout << "end collecting compound_statements_with_brackets\n";
     }
 
     | compound_statement_with_brackets statement_with_semicolon
     {
         $$ = $1;
-        $$->addChildren(1, $2);
-        cout << "collect in compound_statement_with_brackets\n";
+        $$->ast->addChildren(1, $2->ast);
+        
+        //pcout << "collect in compound_statement_with_brackets\n";
     }
 
     | '{' statement_with_semicolon
     {
-        $$ = new ast_node("compound_statement_with_brackets", 2, $1, $2);
-        cout << "collapse to compound_statement_with_brackets\n";
+        $$ = new Node();
+        $$->ast = new ast_node("compound_statement_with_brackets", 2, $1->ast, $2->ast);
+        
+        //pcout << "collapse to compound_statement_with_brackets\n";
     }
     ;
 
 statement_with_semicolon: assignment_statement ';'
     {
-        $$ = new ast_node("statement_with_semicolon", 2, $1, $2);
-        cout << "collapse to statement_with_semicolon\n";
+        $$ = new Node();
+        $$->ast = new ast_node("statement_with_semicolon", 2, $1->ast, $2->ast);
+        
+        //pcout << "collapse to statement_with_semicolon\n";
     }
 
     | additive_statement ';'
     {
-        $$ = new ast_node("statement_with_semicolon", 2, $1, $2);
-        cout << "collapse to statement_with_semicolon\n";
+        $$ = new Node();
+        $$->ast = new ast_node("statement_with_semicolon", 2, $1->ast, $2->ast);
+        
+        //pcout << "collapse to statement_with_semicolon\n";
     }
 
     | RETURN ';'
     {
-        $$ = new ast_node("statement_with_semicolon", 2, $1, $2);
-        cout << "collapse return statement\n";
+        $$ = new Node();
+        $$->ast = new ast_node("statement_with_semicolon", 2, $1->ast, $2->ast);
+        
+        //pcout << "collapse return statement\n";
     }
     ;
 
 multiplicative_statement: multiplicative_statement '*' VALUE
     {
         $$ = $1;
-        $$->addChildren(2, $2, $3);
-        cout << "collect multiplication\n";
+        $$->ast->addChildren(2, $2->ast, $3->ast);
+
+        if($3->type == DATA_TYPE::_VARIABLE) {
+            if(table->find($1->ast->name)) {
+                $$->type = table->table[$3->ast->name];
+            }
+            else {
+                cout << "\033[31mERROR\033[0m: variable \"" << $3->ast->name << "\" does not exist." << endl;
+            }
+        }
+        if($1->type != $3->type) {
+            cout << "\033[31mERROR\033[0m: type mismatch in multiplication." << endl;
+        }
+        
+        //pcout << "collect multiplication\n";
     }
 
     | multiplicative_statement '/' VALUE
     {
         $$ = $1;
-        $$->addChildren(2, $2, $3);
-        cout << "collect division\n";
+        $$->ast->addChildren(2, $2->ast, $3->ast);
+
+        if($3->type == DATA_TYPE::_VARIABLE) {
+            if(table->find($3->ast->name)) {
+                $$->type = table->table[$3->ast->name];
+            }
+            else {
+                cout << "\033[31mERROR\033[0m: variable \"" << $1->ast->name << "\" does not exist." << endl;
+            }
+        }
+        if($1->type != $3->type) {
+            cout << "\033[31mERROR\033[0m: type mismatch in division." << endl;
+        }
+        else if($3->ast->name == "0") {
+            cout << "\033[31mERROR\033[0m: divide by zero error." << endl;
+        }
+
+        //pcout << "collect division\n";
     }
 
     | VALUE
     {
-        $$ = new ast_node("multiplicative_statement", 1, $1);
-        cout << "collapse to multiplicative_statement\n";
+        $$ = new Node();
+        $$->ast = new ast_node("multiplicative_statement", 1, $1->ast);
+
+        if($1->type == DATA_TYPE::_VARIABLE) {
+            if(table->find($1->ast->name)) {
+                $$->type = table->table[$1->ast->name];
+            }
+            else {
+                cout << "\033[31mERROR\033[0m: variable \"" << $1->ast->name << "\" does not exist." << endl;
+            }
+        }
+
+        //pcout << "collapse to multiplicative_statement\n";
     }
     ;
 
 additive_statement: additive_statement '+' multiplicative_statement
     {
         $$ = $1;
-        $$->addChildren(2, $2, $3);
-        cout << "collect addition\n";
+        $$->ast->addChildren(2, $2->ast, $3->ast);
+
+        // cout << $1->ast->name << "+" << $3->ast->name << endl;
+        // cout << typeToString($1->type) << "+" << typeToString($3->type) << endl;
+        if($1->type != $3->type) {
+            cout << "\033[31mERROR\033[0m: type mismatch in addition." << endl;
+        }
+
+        //pcout << "collect addition\n";
     }
 
     | additive_statement '-' multiplicative_statement
     {
         $$ = $1;
-        $$->addChildren(2, $2, $3);
-        cout << "collect subtraction\n";
+        $$->ast->addChildren(2, $2->ast, $3->ast);
+
+        if($1->type != $3->type) {
+            cout << "\033[31mERROR\033[0m: type mismatch in subtraction." << endl;
+        }
+
+        //pcout << "collect subtraction\n";
     }
 
     | multiplicative_statement
     {
-        $$ = new ast_node("additive_statement", 1, $1);
-        cout << "collapse to additive_statement\n";
+        $$ = new Node();
+        $$->ast = new ast_node("additive_statement", 1, $1->ast);
+
+        $$->type = $1->type;
+
+        //pcout << "collapse to additive_statement\n";
     }
     ;
 
 assignment_statement: variable_declaration '=' additive_statement
     {
-        $$ = new ast_node("assignment_statement", 3, $1, $2, $3);
-        cout << "collapse to assignemnt_statement\n";
+        $$ = new Node();
+        $$->ast = new ast_node("assignment_statement", 3, $1->ast, $2->ast, $3->ast);
+        
+        // cout << $1->ast->name << "=" << $3->ast->name << endl;
+        // cout << typeToString($1->type) << "=" << typeToString($3->type) << endl;
+        if($1->type != $3->type) {
+            cout << "\033[31mERROR\033[0m: type mismatch in assignment." << endl;
+        }
+        $$->type = $3->type;
+        
+        //pcout << "collapse to assignemnt_statement\n";
     }
 
     | VALUE '=' additive_statement
     {
-        $$ = new ast_node("assignment_statement", 3, $1, $2, $3);
-        cout << "collpase to assignement_statement\n";
+        $$ = new Node();
+        $$->ast = new ast_node("assignment_statement", 3, $1->ast, $2->ast, $3->ast);
+        
+        // cout << $1->ast->name << "=" << $3->ast->name << endl;
+        // cout << typeToString($1->type) << "=" << typeToString($3->type) << endl;
+        if(!table->find($1->ast->name)) {
+            cout << "\033[31mERROR\033[0m: this variable\"" << $1->ast->name << "\"does not exist." << endl;
+        }
+        else if($1->type != $3->type) {
+            cout << "\033[31mERROR\033[0m: type mismatch in assignment." << endl;
+        }
+        $$->type = $3->type;
+
+        //pcout << "collpase to assignement_statement\n";
     }
     ;    
 %%

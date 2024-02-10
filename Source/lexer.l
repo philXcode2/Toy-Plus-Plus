@@ -11,7 +11,7 @@ L [a-zA-Z_]
 
   // set up the stage before writing tokens
   #include <bits/stdc++.h>
-  #include "../Includes/ast.hpp"  // this needs to be before grammar.h since grammar.h contains ast_node in it
+  #include "../Includes/combined_includes.hpp"  // this needs to be before grammar.h since grammar.h contains Node in it
   #include "grammar.h"
   using namespace std;
 %}
@@ -19,32 +19,143 @@ L [a-zA-Z_]
 /* describe the tokens */
 %%
  /* keywords */
-"fn" {yylval.node = new ast_node("fn"); return(FUNCTION);}
-"int" {yylval.node = new ast_node("int"); return(INT);}
-"void" {yylval.node = new ast_node("void"); return(VOID);}
-"return" {yylval.node = new ast_node("return"); return(RETURN);}
+"fn" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node("fn");
+    yylval.node->type = DATA_TYPE::_FUNCTION;
+    return(FUNCTION);
+  }
+
+"int" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node("int");
+    yylval.node->type = DATA_TYPE::_INT;
+    return(INT);
+  }
+
+"float" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node("float");
+    yylval.node->type = DATA_TYPE::_FLOAT;
+    return(FLOAT);
+  }
+
+"void" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node("void");
+    yylval.node->type = DATA_TYPE::_VOID;
+    return(VOID);
+  }
+
+"return" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node("return");
+    yylval.node->type = DATA_TYPE::_NONE;
+    return(RETURN);
+  }
 
  /* brackets */
-"(" {yylval.node = new ast_node("("); return('(');}
-")" {yylval.node = new ast_node(")"); return(')');}
-"{" {yylval.node = new ast_node("{"); return('{');}
-"}" {yylval.node = new ast_node("}"); return('}');}
+"(" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node("(");
+    yylval.node->type = DATA_TYPE::_NONE;
+    return('(');
+  }
+
+")" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node(")");
+    yylval.node->type = DATA_TYPE::_NONE;
+    return(')');
+  }
+
+"{" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node("{");
+    yylval.node->type = DATA_TYPE::_NONE;
+    return('{');
+  }
+
+"}" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node("}");
+    yylval.node->type = DATA_TYPE::_NONE;
+    return('}');
+  }
 
  /* mathematical symbols */
-"+" {yylval.node = new ast_node("+"); return('+');}
-"-" {yylval.node = new ast_node("-"); return('-');}
-"*" {yylval.node = new ast_node("*"); return('*');}
-"/" {yylval.node = new ast_node("/"); return('/');}
-"=" {yylval.node = new ast_node("="); return('=');}
+"+" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node("+");
+    yylval.node->type = DATA_TYPE::_NONE;
+    return('+');
+  }
+
+"-" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node("-");
+    yylval.node->type = DATA_TYPE::_NONE;
+    return('-');
+  }
+
+"*" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node("*");
+    yylval.node->type = DATA_TYPE::_NONE;
+    return('*');
+  }
+
+"/" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node("/");
+    yylval.node->type = DATA_TYPE::_NONE;
+    return('/');
+  }
+
+"=" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node("=");
+    yylval.node->type = DATA_TYPE::_NONE;
+    return('=');
+  }
 
  /* seperators */
-";" {yylval.node = new ast_node(";"); return(';');}
+";" {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node(";");
+    yylval.node->type = DATA_TYPE::_NONE;
+    return(';');
+  }
+
+"," {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node(",");
+    yylval.node->type = DATA_TYPE::_NONE;
+    return(',');
+  }
 
  /* variables */
-{L}({L}|{D})* {yylval.node = new ast_node(string(yytext)); return(VALUE);}
+{L}({L}|{D})* {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node(string(yytext));
+    yylval.node->type = DATA_TYPE::_VARIABLE;
+    return(VALUE);
+  }
 
  /* numbers */
-{D}* {yylval.node = new ast_node(string(yytext)); return(VALUE);}
+{D}* {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node(string(yytext));
+    yylval.node->type = DATA_TYPE::_INT;
+    return(VALUE);
+  }
+
+{D}*[.]{D}* {
+    yylval.node = new Node();
+    yylval.node->ast = new ast_node(string(yytext));
+    yylval.node->type = DATA_TYPE::_FLOAT;
+    return(VALUE);
+  }
 
  /* ignored characters */
 [ ] {}
