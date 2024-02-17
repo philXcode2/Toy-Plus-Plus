@@ -11,7 +11,10 @@ L [a-zA-Z_]
 
   // set up the stage before writing tokens
   #include <bits/stdc++.h>
-  #include "../Includes/combined_includes.hpp"  // this needs to be before grammar.h since grammar.h contains Node in it
+  #include "../Includes/combined_includes.hpp"  // this needs to be before grammar.h since grammar.h contains Node in it  
+  
+  int line_number = 1;
+  
   #include "grammar.h"
   using namespace std;
 %}
@@ -144,6 +147,7 @@ L [a-zA-Z_]
 
  /* numbers */
 {D}* {
+    //p cout << "int: " << string(yytext) << endl;
     yylval.node = new Node();
     yylval.node->ast = new ast_node(string(yytext));
     yylval.node->type = DATA_TYPE::_INT;
@@ -151,6 +155,7 @@ L [a-zA-Z_]
   }
 
 {D}*[.]{D}* {
+    //p cout << "float: " << string(yytext) << endl;
     yylval.node = new Node();
     yylval.node->ast = new ast_node(string(yytext));
     yylval.node->type = DATA_TYPE::_FLOAT;
@@ -160,7 +165,7 @@ L [a-zA-Z_]
  /* ignored characters */
 [ ] {}
 [\t] {}
-[\n] {}
+[\n] {line_number++;}
 . {}
 %%
 

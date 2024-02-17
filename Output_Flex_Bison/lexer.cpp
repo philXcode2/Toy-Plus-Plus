@@ -478,12 +478,15 @@ char *yytext;
 
   // set up the stage before writing tokens
   #include <bits/stdc++.h>
-  #include "../Includes/combined_includes.hpp"  // this needs to be before grammar.h since grammar.h contains Node in it
+  #include "../Includes/combined_includes.hpp"  // this needs to be before grammar.h since grammar.h contains Node in it  
+  
+  int line_number = 1;
+  
   #include "grammar.h"
   using namespace std;
-#line 485 "./Output_Flex_Bison/lexer.cpp"
+#line 488 "./Output_Flex_Bison/lexer.cpp"
 /* describe the tokens */
-#line 487 "./Output_Flex_Bison/lexer.cpp"
+#line 490 "./Output_Flex_Bison/lexer.cpp"
 
 #define INITIAL 0
 
@@ -700,11 +703,11 @@ YY_DECL
 		}
 
 	{
-#line 20 "./Source/lexer.l"
+#line 23 "./Source/lexer.l"
 
-#line 22 "./Source/lexer.l"
+#line 25 "./Source/lexer.l"
  /* keywords */
-#line 708 "./Output_Flex_Bison/lexer.cpp"
+#line 711 "./Output_Flex_Bison/lexer.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -763,7 +766,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 23 "./Source/lexer.l"
+#line 26 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node("fn");
@@ -773,7 +776,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 30 "./Source/lexer.l"
+#line 33 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node("int");
@@ -783,7 +786,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 37 "./Source/lexer.l"
+#line 40 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node("float");
@@ -793,7 +796,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 44 "./Source/lexer.l"
+#line 47 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node("void");
@@ -803,7 +806,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 51 "./Source/lexer.l"
+#line 54 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node("return");
@@ -814,7 +817,7 @@ YY_RULE_SETUP
 /* brackets */
 case 6:
 YY_RULE_SETUP
-#line 59 "./Source/lexer.l"
+#line 62 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node("(");
@@ -824,7 +827,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 66 "./Source/lexer.l"
+#line 69 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node(")");
@@ -834,7 +837,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 73 "./Source/lexer.l"
+#line 76 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node("{");
@@ -844,7 +847,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 80 "./Source/lexer.l"
+#line 83 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node("}");
@@ -855,7 +858,7 @@ YY_RULE_SETUP
 /* mathematical symbols */
 case 10:
 YY_RULE_SETUP
-#line 88 "./Source/lexer.l"
+#line 91 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node("+");
@@ -865,7 +868,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 95 "./Source/lexer.l"
+#line 98 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node("-");
@@ -875,7 +878,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 102 "./Source/lexer.l"
+#line 105 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node("*");
@@ -885,7 +888,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 109 "./Source/lexer.l"
+#line 112 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node("/");
@@ -895,7 +898,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 116 "./Source/lexer.l"
+#line 119 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node("=");
@@ -906,7 +909,7 @@ YY_RULE_SETUP
 /* seperators */
 case 15:
 YY_RULE_SETUP
-#line 124 "./Source/lexer.l"
+#line 127 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node(";");
@@ -916,7 +919,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 131 "./Source/lexer.l"
+#line 134 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node(",");
@@ -927,7 +930,7 @@ YY_RULE_SETUP
 /* variables */
 case 17:
 YY_RULE_SETUP
-#line 139 "./Source/lexer.l"
+#line 142 "./Source/lexer.l"
 {
     yylval.node = new Node();
     yylval.node->ast = new ast_node(string(yytext));
@@ -938,8 +941,9 @@ YY_RULE_SETUP
 /* numbers */
 case 18:
 YY_RULE_SETUP
-#line 147 "./Source/lexer.l"
+#line 150 "./Source/lexer.l"
 {
+    //p cout << "int: " << string(yytext) << endl;
     yylval.node = new Node();
     yylval.node->ast = new ast_node(string(yytext));
     yylval.node->type = DATA_TYPE::_INT;
@@ -948,8 +952,9 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 154 "./Source/lexer.l"
+#line 158 "./Source/lexer.l"
 {
+    //p cout << "float: " << string(yytext) << endl;
     yylval.node = new Node();
     yylval.node->ast = new ast_node(string(yytext));
     yylval.node->type = DATA_TYPE::_FLOAT;
@@ -959,31 +964,31 @@ YY_RULE_SETUP
 /* ignored characters */
 case 20:
 YY_RULE_SETUP
-#line 162 "./Source/lexer.l"
+#line 167 "./Source/lexer.l"
 {}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 163 "./Source/lexer.l"
+#line 168 "./Source/lexer.l"
 {}
 	YY_BREAK
 case 22:
 /* rule 22 can match eol */
 YY_RULE_SETUP
-#line 164 "./Source/lexer.l"
-{}
+#line 169 "./Source/lexer.l"
+{line_number++;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 165 "./Source/lexer.l"
+#line 170 "./Source/lexer.l"
 {}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 166 "./Source/lexer.l"
+#line 171 "./Source/lexer.l"
 ECHO;
 	YY_BREAK
-#line 987 "./Output_Flex_Bison/lexer.cpp"
+#line 992 "./Output_Flex_Bison/lexer.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1988,7 +1993,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 166 "./Source/lexer.l"
+#line 171 "./Source/lexer.l"
 
 
 /* function marks the end of lexer */
