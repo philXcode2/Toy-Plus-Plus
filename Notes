@@ -1,0 +1,4 @@
+no space before token description
+put space before comment in lexer words to push it in c++ code instead of flex code
+make super Node from the start to save yourself from the hassle later
+use /*p*/ and //p to mark print statements and easily turn them on or off

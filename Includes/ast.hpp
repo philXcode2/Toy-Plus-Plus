@@ -1,4 +1,4 @@
-/* keep out of Soource and at top level because these are used by output of flex and bison */
+/* keep out of Source and at top level because these are used by output of flex and bison */
 
 #include <bits/stdc++.h>
 using namespace std;

@@ -1,0 +1,70 @@
+digraph program {
+    ast_hpp [shape=plain label=<
+        <table>
+            <tr><td><b>ast.hpp</b></td></tr>
+            <tr><td>ast_node</td></tr>
+            <tr><td>printAst()</td></tr>
+        </table>
+    >]
+    ast_cpp [label="ast.cpp"]
+    ast_cpp -> ast_hpp [label="descriptions"]
+
+    symbol_table_hpp [shape=plain label=<
+        <table>
+            <tr><td><b>symbol_table.hpp</b></td></tr>
+            <tr><td>symbol_table</td></tr>
+            <tr><td>DATA_TYPE</td></tr>
+            <tr><td>typeToString()</td></tr>
+            <tr><td>printTable()</td></tr>
+        </table>
+    >]
+    symbol_table_cpp [label="symbol_table.cpp"]
+    symbol_table_cpp -> symbol_table_hpp [label="descriptions"]
+
+    combined_includes_hpp [shape=plain label=<
+        <table>
+            <tr><td><b>combined_includes.hpp</b></td></tr>
+            <tr><td>Node</td></tr>
+        </table>
+    >]
+    combined_includes_cpp [label="combined_includes.cpp"]
+    combined_includes_cpp -> combined_includes_hpp [label="descriptions"]
+    ast_hpp -> combined_includes_hpp [label="ast_node"]
+    symbol_table_hpp -> combined_includes_hpp [label="DATA_TYPE"]
+
+    grammar [shape=plain label=<
+        <table>
+            <tr><td><b>grammar.y</b></td></tr>
+            <tr><td>yyerror()</td></tr>
+            <tr><td>yylex()</td></tr>
+            <tr><td>yyparse()</td></tr>
+        </table>
+    >]
+    lexer -> grammar [label="line_number"]
+    combined_includes_hpp -> grammar [label="Node"]
+
+    lexer [shape=plain label=<
+        <table>
+            <tr><td><b>lexer.l</b></td></tr>
+            <tr><td>yywrap</td></tr>
+        </table>
+    >]
+    combined_includes_hpp -> lexer [label="Node"]
+    grammar -> lexer [label="yyerror()"]
+    grammar -> lexer [label="yylex()"]
+    grammar -> lexer [label="yyparse()"]
+
+    main [shape=plain label=<
+        <table>
+            <tr><td><b>external_main.cpp</b></td></tr>
+            <tr><td>main()</td></tr>
+            <tr><td>ast_file</td></tr>
+            <tr><td>symbol_table_file</td></tr>
+        </table>
+    >]
+    grammar -> main [label="root"]
+    grammar -> main [label="table"]
+    grammar -> main [label="compilation_successful"]
+    combined_includes_hpp -> main [label="printAst()"]
+    combined_includes_hpp -> main [label="printTable()"]
+}
