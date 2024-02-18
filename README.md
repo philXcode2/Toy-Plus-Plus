@@ -16,4 +16,4 @@ Files :-
     program.pdf - contains the pdf showing the flow of various funcitons and structures from one file to another
 
 TODO :-
-    implement the symbol table for the toy language
+    implement the Three Address Code generation for the toy language.
