@@ -70,7 +70,7 @@
 #line 1 "./Source/grammar.y"
 
     /*
-    statements are collapsed to the left side of grammar
+        statements are collapsed to the left side of grammar
     */
 
     // set up stage before writing the language grammar
@@ -82,7 +82,7 @@
     // any value assigning to any field of Node here causes does not name a type error
     Node* root = new Node();
     // global symbol table
-    symbol_table* table = new symbol_table();
+    symbol_table* current_table = new symbol_table("global");
     // state of compilation
     bool compilation_successful = true;
 
@@ -545,9 +545,9 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    67,    67,    77,    88,    99,   110,   135,   142,   149,
-     157,   167,   177,   187,   198,   224,   237,   247,   258,   268,
-     278,   289,   314,   343,   369,   385,   401,   415,   432
+       0,    67,    67,    77,    88,    99,   110,   131,   138,   145,
+     153,   163,   173,   183,   194,   220,   233,   243,   254,   264,
+     274,   285,   310,   339,   365,   381,   397,   411,   428
 };
 #endif
 
@@ -1140,7 +1140,7 @@ yyreduce:
     {
         // doing this in upper c++ code creates does not name a type error
         root->ast = new ast_node("start");
-        root->ast->addChildren(1, (yyvsp[0].node)->ast);
+        addChildren(root->ast, 1, (yyvsp[0].node)->ast);
         
         //pcout << "collapse to end_point_of_collapse\n";
     }
@@ -1154,7 +1154,7 @@ yyreduce:
 
         // building ast
         (yyval.node)->ast = (yyvsp[-1].node)->ast;
-        (yyval.node)->ast->addChildren(1, (yyvsp[0].node)->ast);
+        addChildren((yyval.node)->ast, 1, (yyvsp[0].node)->ast);
         
         //pcout << "collect in list_of_function\n";
     }
@@ -1196,82 +1196,78 @@ yyreduce:
         (yyval.node)->ast = new ast_node("function_declaration", 3, (yyvsp[-3].node)->ast, (yyvsp[-2].node)->ast, (yyvsp[-1].node)->ast, (yyvsp[0].node)->ast);
         
         // type checking
-        if(table->find((yyvsp[0].node)->ast->name)) {
+        if(findSymbol(current_table->parent_table, (yyvsp[0].node)->ast->name)) {
             cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: this variable already exist with another type." << endl;
             compilation_successful = false;
         }
         else {
-            table->table[(yyvsp[0].node)->ast->name] = (yyvsp[-3].node)->type;
+            current_table->name = (yyvsp[0].node)->ast->name; // set name of the function's symbol table
+            current_table->parent_table->table[(yyvsp[0].node)->ast->name] = (yyvsp[-3].node)->type;
         }
-        // switch the table here because compound statement opens after a statement collapses
-        symbol_table* child_table = new symbol_table();
-        child_table->parent_table = table;
-        table->children_tables.push_back(child_table);
-        table = child_table;
         
         //pcout << "collapse to function_declaration\n";
     }
-#line 1215 "./Output_Flex_Bison/grammar.cpp"
+#line 1211 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 7: /* data_type: INT  */
-#line 136 "./Source/grammar.y"
+#line 132 "./Source/grammar.y"
     {
         (yyval.node) = (yyvsp[0].node);
         
         //pcout << "collapse to data_type\n";
     }
-#line 1225 "./Output_Flex_Bison/grammar.cpp"
+#line 1221 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 8: /* data_type: FLOAT  */
-#line 143 "./Source/grammar.y"
+#line 139 "./Source/grammar.y"
     {
         (yyval.node) = (yyvsp[0].node);
         
         //pcout << "collapse to data_type\n";
     }
-#line 1235 "./Output_Flex_Bison/grammar.cpp"
+#line 1231 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 9: /* data_type: VOID  */
-#line 150 "./Source/grammar.y"
+#line 146 "./Source/grammar.y"
     {
         (yyval.node) = (yyvsp[0].node);
         
         //pcout << "collapse to data_type\n";
     }
-#line 1245 "./Output_Flex_Bison/grammar.cpp"
+#line 1241 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 10: /* arguement_list_with_brackets: arguement_list_with_brackets ')'  */
-#line 158 "./Source/grammar.y"
+#line 154 "./Source/grammar.y"
     {
         (yyval.node) = (yyvsp[-1].node);
         
         // building ast
-        (yyval.node)->ast->addChildren(1, (yyvsp[0].node)->ast);
+        addChildren((yyval.node)->ast, 1, (yyvsp[0].node)->ast);
 
         //pcout << "end collecting arguement_list_with_brackets\n";
     }
-#line 1258 "./Output_Flex_Bison/grammar.cpp"
+#line 1254 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 11: /* arguement_list_with_brackets: arguement_list_with_brackets ',' variable_declaration  */
-#line 168 "./Source/grammar.y"
+#line 164 "./Source/grammar.y"
     {
         (yyval.node) = (yyvsp[-2].node);
 
         // building ast
-        (yyval.node)->ast->addChildren(2, (yyvsp[-1].node)->ast, (yyvsp[0].node)->ast);
+        addChildren((yyval.node)->ast, 2, (yyvsp[-1].node)->ast, (yyvsp[0].node)->ast);
         
         //pcout << "collect in arguement_list_with_brackets\n";
     }
-#line 1271 "./Output_Flex_Bison/grammar.cpp"
+#line 1267 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 12: /* arguement_list_with_brackets: '(' variable_declaration  */
-#line 178 "./Source/grammar.y"
+#line 174 "./Source/grammar.y"
     {
         (yyval.node) = new Node();
 
@@ -1280,11 +1276,11 @@ yyreduce:
         
         //pcout << "collapse to arguement_list_with_brackets\n";
     }
-#line 1284 "./Output_Flex_Bison/grammar.cpp"
+#line 1280 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 13: /* arguement_list_with_brackets: '(' ')'  */
-#line 188 "./Source/grammar.y"
+#line 184 "./Source/grammar.y"
     {
         (yyval.node) = new Node();
 
@@ -1293,11 +1289,11 @@ yyreduce:
         
         //pcout << "collapse empty arguement_list_with_brackets\n";
     }
-#line 1297 "./Output_Flex_Bison/grammar.cpp"
+#line 1293 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 14: /* variable_declaration: data_type VALUE  */
-#line 199 "./Source/grammar.y"
+#line 195 "./Source/grammar.y"
     {
         (yyval.node) = new Node();
 
@@ -1310,51 +1306,51 @@ yyreduce:
             cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: use valid variable name." << endl;
             compilation_successful = false;
         }
-        else if(table->find((yyvsp[0].node)->ast->name)) {
+        else if(findSymbol(current_table, (yyvsp[0].node)->ast->name)) {
             cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: this variable already exist with another type." << endl;
             compilation_successful = false;
         }
         else {
-            table->table[(yyvsp[0].node)->ast->name] = (yyvsp[-1].node)->type;
+            current_table->table[(yyvsp[0].node)->ast->name] = (yyvsp[-1].node)->type;
             (yyval.node)->type = (yyvsp[-1].node)->type;
         }
         
         //pcout << "collapse to variable_declaration\n";
     }
-#line 1325 "./Output_Flex_Bison/grammar.cpp"
+#line 1321 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 15: /* compound_statement_with_brackets: compound_statement_with_brackets '}'  */
-#line 225 "./Source/grammar.y"
+#line 221 "./Source/grammar.y"
     {
         (yyval.node) = (yyvsp[-1].node);
 
         // building ast
-        (yyval.node)->ast->addChildren(1, (yyvsp[0].node)->ast);
+        addChildren((yyval.node)->ast, 1, (yyvsp[0].node)->ast);
 
         // type checking
-        table = table->parent_table;
+        current_table = current_table->parent_table;
         
         //pcout << "end collecting compound_statements_with_brackets\n";
     }
-#line 1341 "./Output_Flex_Bison/grammar.cpp"
+#line 1337 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 16: /* compound_statement_with_brackets: compound_statement_with_brackets statement_with_semicolon  */
-#line 238 "./Source/grammar.y"
+#line 234 "./Source/grammar.y"
     {
         (yyval.node) = (yyvsp[-1].node);
 
         // building ast
-        (yyval.node)->ast->addChildren(1, (yyvsp[0].node)->ast);
+        addChildren((yyval.node)->ast, 1, (yyvsp[0].node)->ast);
         
         //pcout << "collect in compound_statement_with_brackets\n";
     }
-#line 1354 "./Output_Flex_Bison/grammar.cpp"
+#line 1350 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 17: /* compound_statement_with_brackets: '{' statement_with_semicolon  */
-#line 248 "./Source/grammar.y"
+#line 244 "./Source/grammar.y"
     {
         (yyval.node) = new Node();
 
@@ -1363,11 +1359,11 @@ yyreduce:
         
         //pcout << "collapse to compound_statement_with_brackets\n";
     }
-#line 1367 "./Output_Flex_Bison/grammar.cpp"
+#line 1363 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 18: /* statement_with_semicolon: assignment_statement ';'  */
-#line 259 "./Source/grammar.y"
+#line 255 "./Source/grammar.y"
     {
         (yyval.node) = new Node();
 
@@ -1376,11 +1372,11 @@ yyreduce:
         
         //pcout << "collapse to statement_with_semicolon\n";
     }
-#line 1380 "./Output_Flex_Bison/grammar.cpp"
+#line 1376 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 19: /* statement_with_semicolon: additive_statement ';'  */
-#line 269 "./Source/grammar.y"
+#line 265 "./Source/grammar.y"
     {
         (yyval.node) = new Node();
 
@@ -1389,11 +1385,11 @@ yyreduce:
         
         //pcout << "collapse to statement_with_semicolon\n";
     }
-#line 1393 "./Output_Flex_Bison/grammar.cpp"
+#line 1389 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 20: /* statement_with_semicolon: RETURN ';'  */
-#line 279 "./Source/grammar.y"
+#line 275 "./Source/grammar.y"
     {
         (yyval.node) = new Node();
 
@@ -1402,21 +1398,21 @@ yyreduce:
         
         //pcout << "collapse return statement\n";
     }
-#line 1406 "./Output_Flex_Bison/grammar.cpp"
+#line 1402 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 21: /* multiplicative_statement: multiplicative_statement '*' VALUE  */
-#line 290 "./Source/grammar.y"
+#line 286 "./Source/grammar.y"
     {
         (yyval.node) = (yyvsp[-2].node);
 
         // building ast
-        (yyval.node)->ast->addChildren(2, (yyvsp[-1].node)->ast, (yyvsp[0].node)->ast);
+        addChildren((yyval.node)->ast, 2, (yyvsp[-1].node)->ast, (yyvsp[0].node)->ast);
 
         // type checking
         if((yyvsp[0].node)->type == DATA_TYPE::_VARIABLE) {
-            if(table->find((yyvsp[-2].node)->ast->name)) {
-                (yyval.node)->type = table->table[(yyvsp[0].node)->ast->name];
+            if(findSymbol(current_table, (yyvsp[-2].node)->ast->name)) {
+                (yyval.node)->type = current_table->table[(yyvsp[0].node)->ast->name];
             }
             else {
                 cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: variable \"" << (yyvsp[0].node)->ast->name << "\" does not exist." << endl;
@@ -1430,21 +1426,21 @@ yyreduce:
         
         //pcout << "collect multiplication\n";
     }
-#line 1434 "./Output_Flex_Bison/grammar.cpp"
+#line 1430 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 22: /* multiplicative_statement: multiplicative_statement '/' VALUE  */
-#line 315 "./Source/grammar.y"
+#line 311 "./Source/grammar.y"
     {
         (yyval.node) = (yyvsp[-2].node);
 
         // building ast
-        (yyval.node)->ast->addChildren(2, (yyvsp[-1].node)->ast, (yyvsp[0].node)->ast);
+        addChildren((yyval.node)->ast, 2, (yyvsp[-1].node)->ast, (yyvsp[0].node)->ast);
 
         // type checking
         if((yyvsp[0].node)->type == DATA_TYPE::_VARIABLE) {
-            if(table->find((yyvsp[0].node)->ast->name)) {
-                (yyval.node)->type = table->table[(yyvsp[0].node)->ast->name];
+            if(findSymbol(current_table, (yyvsp[0].node)->ast->name)) {
+                (yyval.node)->type = current_table->table[(yyvsp[0].node)->ast->name];
             }
             else {
                 cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: variable \"" << (yyvsp[-2].node)->ast->name << "\" does not exist." << endl;
@@ -1462,11 +1458,11 @@ yyreduce:
 
         //pcout << "collect division\n";
     }
-#line 1466 "./Output_Flex_Bison/grammar.cpp"
+#line 1462 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 23: /* multiplicative_statement: VALUE  */
-#line 344 "./Source/grammar.y"
+#line 340 "./Source/grammar.y"
     {
         (yyval.node) = new Node();
 
@@ -1476,8 +1472,8 @@ yyreduce:
         // type checking
         // check if value is variable and exists or just pass on if it is number
         if((yyvsp[0].node)->type == DATA_TYPE::_VARIABLE) {
-            if(table->find((yyvsp[0].node)->ast->name)) {
-                (yyval.node)->type = table->table[(yyvsp[0].node)->ast->name];
+            if(findSymbol(current_table, (yyvsp[0].node)->ast->name)) {
+                (yyval.node)->type = current_table->table[(yyvsp[0].node)->ast->name];
             }
             else {
                 cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: variable \"" << (yyvsp[0].node)->ast->name << "\" does not exist." << endl;
@@ -1490,16 +1486,16 @@ yyreduce:
 
         //pcout << "collapse to multiplicative_statement\n";
     }
-#line 1494 "./Output_Flex_Bison/grammar.cpp"
+#line 1490 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 24: /* additive_statement: additive_statement '+' multiplicative_statement  */
-#line 370 "./Source/grammar.y"
+#line 366 "./Source/grammar.y"
     {
         (yyval.node) = (yyvsp[-2].node);
 
         // building ast
-        (yyval.node)->ast->addChildren(2, (yyvsp[-1].node)->ast, (yyvsp[0].node)->ast);
+        addChildren((yyval.node)->ast, 2, (yyvsp[-1].node)->ast, (yyvsp[0].node)->ast);
 
         // type checking
         if((yyvsp[-2].node)->type != (yyvsp[0].node)->type) {
@@ -1509,16 +1505,16 @@ yyreduce:
 
         //pcout << "collect addition\n";
     }
-#line 1513 "./Output_Flex_Bison/grammar.cpp"
+#line 1509 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 25: /* additive_statement: additive_statement '-' multiplicative_statement  */
-#line 386 "./Source/grammar.y"
+#line 382 "./Source/grammar.y"
     {
         (yyval.node) = (yyvsp[-2].node);
 
         // building ast
-        (yyval.node)->ast->addChildren(2, (yyvsp[-1].node)->ast, (yyvsp[0].node)->ast);
+        addChildren((yyval.node)->ast, 2, (yyvsp[-1].node)->ast, (yyvsp[0].node)->ast);
 
         // type checking
         if((yyvsp[-2].node)->type != (yyvsp[0].node)->type) {
@@ -1528,11 +1524,11 @@ yyreduce:
 
         //pcout << "collect subtraction\n";
     }
-#line 1532 "./Output_Flex_Bison/grammar.cpp"
+#line 1528 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 26: /* additive_statement: multiplicative_statement  */
-#line 402 "./Source/grammar.y"
+#line 398 "./Source/grammar.y"
     {
         (yyval.node) = new Node();
 
@@ -1544,11 +1540,11 @@ yyreduce:
 
         //pcout << "collapse to additive_statement\n";
     }
-#line 1548 "./Output_Flex_Bison/grammar.cpp"
+#line 1544 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 27: /* assignment_statement: variable_declaration '=' additive_statement  */
-#line 416 "./Source/grammar.y"
+#line 412 "./Source/grammar.y"
     {
         (yyval.node) = new Node();
 
@@ -1564,11 +1560,11 @@ yyreduce:
         
         //pcout << "collapse to assignemnt_statement\n";
     }
-#line 1568 "./Output_Flex_Bison/grammar.cpp"
+#line 1564 "./Output_Flex_Bison/grammar.cpp"
     break;
 
   case 28: /* assignment_statement: VALUE '=' additive_statement  */
-#line 433 "./Source/grammar.y"
+#line 429 "./Source/grammar.y"
     {
         (yyval.node) = new Node();
 
@@ -1576,11 +1572,11 @@ yyreduce:
         (yyval.node)->ast = new ast_node("assignment_statement", 3, (yyvsp[-2].node)->ast, (yyvsp[-1].node)->ast, (yyvsp[0].node)->ast);
         
         // type checking
-        if(!table->find((yyvsp[-2].node)->ast->name)) {
+        if(!findSymbol(current_table, (yyvsp[-2].node)->ast->name)) {
             cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: this variable\"" << (yyvsp[-2].node)->ast->name << "\"does not exist." << endl;
             compilation_successful = false;
         }
-        else if(table->table[(yyvsp[-2].node)->ast->name] != (yyvsp[0].node)->type) {
+        else if(current_table->table[(yyvsp[-2].node)->ast->name] != (yyvsp[0].node)->type) {
             cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: type mismatch in assignment." << endl;
             compilation_successful = false;
         }
@@ -1588,11 +1584,11 @@ yyreduce:
 
         //pcout << "collpase to assignement_statement\n";
     }
-#line 1592 "./Output_Flex_Bison/grammar.cpp"
+#line 1588 "./Output_Flex_Bison/grammar.cpp"
     break;
 
 
-#line 1596 "./Output_Flex_Bison/grammar.cpp"
+#line 1592 "./Output_Flex_Bison/grammar.cpp"
 
       default: break;
     }
@@ -1785,7 +1781,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 453 "./Source/grammar.y"
+#line 449 "./Source/grammar.y"
 
 /* ending grammar of the language */
 

@@ -17,6 +17,8 @@ L [a-zA-Z_]
   
   #include "grammar.h"
   using namespace std;
+
+  extern symbol_table* current_table;
 %}
 
 /* describe the tokens */
@@ -26,6 +28,16 @@ L [a-zA-Z_]
     yylval.node = new Node();
     yylval.node->ast = new ast_node("fn");
     yylval.node->type = DATA_TYPE::_FUNCTION;
+
+    // type checking
+    /* type checking is done here because
+       we need to switch the symbol table before it reaches the parser
+       to keep the arguements within the function's symbol table */
+    symbol_table* child_table = new symbol_table("");
+    child_table->parent_table = current_table;
+    current_table->children_tables.push_back(child_table);
+    current_table = child_table;
+
     return(FUNCTION);
   }
 

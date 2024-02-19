@@ -50,6 +50,7 @@ digraph program {
         </table>
     >]
     combined_includes_hpp -> lexer [label="Node"]
+    grammar -> lexer [label="current_table"]
     grammar -> lexer [label="yyerror()"]
     grammar -> lexer [label="yylex()"]
     grammar -> lexer [label="yyparse()"]

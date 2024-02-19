@@ -1,9 +1,15 @@
 Name,Data Type
+-,global,-
 func2,FUNCTION
 main,FUNCTION
-y,INT
-x,INT
+
+-,main,-
 c,INT
 b2,INT
 b,FLOAT
 a,INT
+y,INT
+x,INT
+
+-,func2,-
+
