@@ -31,5 +31,5 @@ This is a toy compiler made to practice compiler design in flex and bison.
 ./compiler Input_File_Path Output_File_Path
 ```
 
-## TODO
-    Implement the symbol table for the toy language
+TODO :-
+    Implement the Three Address Code generation for the toy language.
