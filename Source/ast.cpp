@@ -35,7 +35,7 @@ ast_node::ast_node(string _name, unsigned int _number_of_children, ...) {
     va_end(_children);
 }
 
-void ast_node::addChildren(unsigned int _number_of_children, ...) {
+void addChildren(ast_node* _node, unsigned int _number_of_children, ...) {
     // this variable will hold the list of children nodes 
     va_list _children;
     va_start(_children, _number_of_children);
@@ -49,7 +49,7 @@ void ast_node::addChildren(unsigned int _number_of_children, ...) {
 
         if(_child == NULL) {continue;}
 
-        children.push_back(_child);
+        _node->children.push_back(_child);
     }
 
     // free the memory allocated for va_list

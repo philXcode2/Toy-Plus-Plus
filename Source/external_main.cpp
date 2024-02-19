@@ -9,7 +9,7 @@ extern FILE* yyin;  // this is the stdin for yyparse an is used to supply the in
 
 /* these are suppied from external sources */
 extern Node* root;
-extern symbol_table* table;
+extern symbol_table* current_table;
 extern bool compilation_successful;
 
 /* set up files then start the compiler */
@@ -51,8 +51,8 @@ int main(int argc, char *argv[]) {
     ast_file << "}";
     ast_file.close();
 
-    while(table->parent_table != NULL) table = table->parent_table;
-    printTable(table, symbol_table_file);
+    while(current_table->parent_table != NULL) current_table = current_table->parent_table;
+    printTable(current_table, symbol_table_file);
     symbol_table_file.close();
 
     // error in compiling dot file

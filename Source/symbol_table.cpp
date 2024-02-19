@@ -1,8 +1,12 @@
 #include<bits/stdc++.h>
 #include "../Includes/symbol_table.hpp"
 
-bool symbol_table::find(string variable) {
-    return this->table.count(variable) == 1;
+symbol_table::symbol_table(string _name) {
+    this->name = _name;
+}
+
+bool findSymbol(symbol_table* current_table, string variable) {
+    return current_table->table.count(variable) == 1;
 }
 
 string typeToString(DATA_TYPE type) {
@@ -17,14 +21,16 @@ string typeToString(DATA_TYPE type) {
     return string("");
 }
 
-void printTable(symbol_table* table, fstream &table_file) {
-    if(table == NULL) return;
+void printTable(symbol_table* current_table, fstream &table_file) {
+    if(current_table == NULL) return;
 
-    for(auto &table_entry: table->table) {
+    table_file << "-," << current_table->name << ",-" << endl;
+    for(auto &table_entry: current_table->table) {
         table_file << table_entry.first << "," << typeToString(table_entry.second) << endl;
     }
+    table_file << endl;
 
-    for(auto &child_table: table->children_tables) {
+    for(auto &child_table: current_table->children_tables) {
         printTable(child_table, table_file);
     }
 

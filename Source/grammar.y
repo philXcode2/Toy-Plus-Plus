@@ -1,6 +1,6 @@
 %{
     /*
-    statements are collapsed to the left side of grammar
+        statements are collapsed to the left side of grammar
     */
 
     // set up stage before writing the language grammar
@@ -12,7 +12,7 @@
     // any value assigning to any field of Node here causes does not name a type error
     Node* root = new Node();
     // global symbol table
-    symbol_table* table = new symbol_table();
+    symbol_table* current_table = new symbol_table("global");
     // state of compilation
     bool compilation_successful = true;
 
@@ -68,7 +68,7 @@ end_point_of_collapse: list_of_functions
     {
         // doing this in upper c++ code creates does not name a type error
         root->ast = new ast_node("start");
-        root->ast->addChildren(1, $1->ast);
+        addChildren(root->ast, 1, $1->ast);
         
         //pcout << "collapse to end_point_of_collapse\n";
     }
@@ -80,7 +80,7 @@ list_of_functions: list_of_functions function
 
         // building ast
         $$->ast = $1->ast;
-        $$->ast->addChildren(1, $2->ast);
+        addChildren($$->ast, 1, $2->ast);
         
         //pcout << "collect in list_of_function\n";
     }
@@ -115,18 +115,14 @@ function_declaration: FUNCTION data_type arguement_list_with_brackets VALUE
         $$->ast = new ast_node("function_declaration", 3, $1->ast, $2->ast, $3->ast, $4->ast);
         
         // type checking
-        if(table->find($4->ast->name)) {
+        if(findSymbol(current_table->parent_table, $4->ast->name)) {
             cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: this variable already exist with another type." << endl;
             compilation_successful = false;
         }
         else {
-            table->table[$4->ast->name] = $1->type;
+            current_table->name = $4->ast->name; // set name of the function's symbol table
+            current_table->parent_table->table[$4->ast->name] = $1->type;
         }
-        // switch the table here because compound statement opens after a statement collapses
-        symbol_table* child_table = new symbol_table();
-        child_table->parent_table = table;
-        table->children_tables.push_back(child_table);
-        table = child_table;
         
         //pcout << "collapse to function_declaration\n";
     }
@@ -159,7 +155,7 @@ arguement_list_with_brackets: arguement_list_with_brackets ')'
         $$ = $1;
         
         // building ast
-        $$->ast->addChildren(1, $2->ast);
+        addChildren($$->ast, 1, $2->ast);
 
         //pcout << "end collecting arguement_list_with_brackets\n";
     }
@@ -169,7 +165,7 @@ arguement_list_with_brackets: arguement_list_with_brackets ')'
         $$ = $1;
 
         // building ast
-        $$->ast->addChildren(2, $2->ast, $3->ast);
+        addChildren($$->ast, 2, $2->ast, $3->ast);
         
         //pcout << "collect in arguement_list_with_brackets\n";
     }
@@ -208,12 +204,12 @@ variable_declaration: data_type VALUE
             cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: use valid variable name." << endl;
             compilation_successful = false;
         }
-        else if(table->find($2->ast->name)) {
+        else if(findSymbol(current_table, $2->ast->name)) {
             cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: this variable already exist with another type." << endl;
             compilation_successful = false;
         }
         else {
-            table->table[$2->ast->name] = $1->type;
+            current_table->table[$2->ast->name] = $1->type;
             $$->type = $1->type;
         }
         
@@ -226,10 +222,10 @@ compound_statement_with_brackets: compound_statement_with_brackets '}'
         $$ = $1;
 
         // building ast
-        $$->ast->addChildren(1, $2->ast);
+        addChildren($$->ast, 1, $2->ast);
 
         // type checking
-        table = table->parent_table;
+        current_table = current_table->parent_table;
         
         //pcout << "end collecting compound_statements_with_brackets\n";
     }
@@ -239,7 +235,7 @@ compound_statement_with_brackets: compound_statement_with_brackets '}'
         $$ = $1;
 
         // building ast
-        $$->ast->addChildren(1, $2->ast);
+        addChildren($$->ast, 1, $2->ast);
         
         //pcout << "collect in compound_statement_with_brackets\n";
     }
@@ -291,12 +287,12 @@ multiplicative_statement: multiplicative_statement '*' VALUE
         $$ = $1;
 
         // building ast
-        $$->ast->addChildren(2, $2->ast, $3->ast);
+        addChildren($$->ast, 2, $2->ast, $3->ast);
 
         // type checking
         if($3->type == DATA_TYPE::_VARIABLE) {
-            if(table->find($1->ast->name)) {
-                $$->type = table->table[$3->ast->name];
+            if(findSymbol(current_table, $1->ast->name)) {
+                $$->type = current_table->table[$3->ast->name];
             }
             else {
                 cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: variable \"" << $3->ast->name << "\" does not exist." << endl;
@@ -316,12 +312,12 @@ multiplicative_statement: multiplicative_statement '*' VALUE
         $$ = $1;
 
         // building ast
-        $$->ast->addChildren(2, $2->ast, $3->ast);
+        addChildren($$->ast, 2, $2->ast, $3->ast);
 
         // type checking
         if($3->type == DATA_TYPE::_VARIABLE) {
-            if(table->find($3->ast->name)) {
-                $$->type = table->table[$3->ast->name];
+            if(findSymbol(current_table, $3->ast->name)) {
+                $$->type = current_table->table[$3->ast->name];
             }
             else {
                 cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: variable \"" << $1->ast->name << "\" does not exist." << endl;
@@ -350,8 +346,8 @@ multiplicative_statement: multiplicative_statement '*' VALUE
         // type checking
         // check if value is variable and exists or just pass on if it is number
         if($1->type == DATA_TYPE::_VARIABLE) {
-            if(table->find($1->ast->name)) {
-                $$->type = table->table[$1->ast->name];
+            if(findSymbol(current_table, $1->ast->name)) {
+                $$->type = current_table->table[$1->ast->name];
             }
             else {
                 cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: variable \"" << $1->ast->name << "\" does not exist." << endl;
@@ -371,7 +367,7 @@ additive_statement: additive_statement '+' multiplicative_statement
         $$ = $1;
 
         // building ast
-        $$->ast->addChildren(2, $2->ast, $3->ast);
+        addChildren($$->ast, 2, $2->ast, $3->ast);
 
         // type checking
         if($1->type != $3->type) {
@@ -387,7 +383,7 @@ additive_statement: additive_statement '+' multiplicative_statement
         $$ = $1;
 
         // building ast
-        $$->ast->addChildren(2, $2->ast, $3->ast);
+        addChildren($$->ast, 2, $2->ast, $3->ast);
 
         // type checking
         if($1->type != $3->type) {
@@ -437,11 +433,11 @@ assignment_statement: variable_declaration '=' additive_statement
         $$->ast = new ast_node("assignment_statement", 3, $1->ast, $2->ast, $3->ast);
         
         // type checking
-        if(!table->find($1->ast->name)) {
+        if(!findSymbol(current_table, $1->ast->name)) {
             cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: this variable\"" << $1->ast->name << "\"does not exist." << endl;
             compilation_successful = false;
         }
-        else if(table->table[$1->ast->name] != $3->type) {
+        else if(current_table->table[$1->ast->name] != $3->type) {
             cout << "\033[31mERROR line \033[34m" << line_number << "\033[0m: type mismatch in assignment." << endl;
             compilation_successful = false;
         }
